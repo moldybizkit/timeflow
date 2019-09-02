@@ -8,7 +8,7 @@ class UserController {
         // get useres from database 
         const userRepository = getRepository(User);
         const users = await userRepository.find({
-            select: ["id", "username", "role"]
+            select: ["id", "username"]
         });
 
         //send users
@@ -23,44 +23,13 @@ class UserController {
         const userRepository = getRepository(User);
         try{
             const user = await userRepository.findOneOrFail(id, {
-                select: ["id", "username", "role"]
+                select: ["id", "username"]
             });
             res.send(user);
         } catch (error) {
             res.status(404).send("User not found");
         }
         
-    };
-    
-    static newUser = async (req: Request, res: Response) => {
-        //get params from body
-        let { username, password, role } = req.body;
-        let user = new User();
-        user.username = username;
-        user.password = password;
-        user.role = role;
-
-        //validate if params are ok
-        const errors = await validate(user);
-        if (errors.length > 0) {
-            res.status(400).send(errors);
-            return;
-        }
-
-        //hash the password 
-        user.hashPassword();
-
-        //try to save
-        const userRepository = getRepository(User);
-        try {
-            await userRepository.save(user);
-        } catch (e) {
-            res.status(409).send("username already in use");
-            return;
-        }
-
-        //if ok send 201
-        res.status(201).send("User created");
     };
 
     static editUser = async (req: Request, res: Response) => {
@@ -82,7 +51,6 @@ class UserController {
 
         //validate new values on model
         user.username = username; 
-        user.role = role;
         const errors = await validate(user);
         if (errors.length > 0) {
             res.status(400).send(errors);

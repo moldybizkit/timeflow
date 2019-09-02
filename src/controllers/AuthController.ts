@@ -7,7 +7,7 @@ import config from "../config/config";
 import { validate } from "class-validator";
 
 class AuthController {
-    static login = async (req: Request, res: Response) => {
+    static signin = async (req: Request, res: Response) => {
         //Check if username and password are set 
         let { username, password } = req.body;
         if (!(username && password)) {
@@ -39,6 +39,35 @@ class AuthController {
         //Send the jwt in the response
         res.send(token);
     };
+    
+    static signup = async (req: Request, res: Response) => {
+        //get params from body
+        let { username, password } = req.body;
+        let user = new User();
+        user.username = username;
+        user.password = password;
+        //validate if params are ok
+        const errors = await validate(user);
+        if (errors.length > 0) {
+            res.status(400).send(errors);
+            return;
+        }
+
+        //hash the password 
+        user.hashPassword();
+
+        //try to save
+        const userRepository = getRepository(User);
+        try {
+            await userRepository.save(user);
+        } catch (e) {
+            res.status(409).send("username already in use");
+            return;
+        }
+
+        //if ok send 201
+        res.status(201).send("User created");
+    }
 
     static changePassword = async (req: Request, res: Response) => {
         // Get Id from jwt

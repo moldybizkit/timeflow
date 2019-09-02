@@ -31,10 +31,6 @@ export class User {
     password: string;
 
     @Column()
-    @IsNotEmpty()
-    role: string;
-
-    @Column()
     @CreateDateColumn()
     createdAt: Date;
 
@@ -46,7 +42,7 @@ export class User {
         cascade: true
     })
     @JoinTable({
-        name: "_user_tasks"
+        name: "user_has_tasks"
     })
     tasks: Task[];
 

@@ -4,11 +4,14 @@ import {
     Column, 
     Unique,
     CreateDateColumn,
-    UpdateDateColumn
+    UpdateDateColumn,
+    ManyToMany,
+    JoinTable
 } from "typeorm";
 
 import { Length, IsNotEmpty } from "class-validator";
 import * as bcrypt from "bcryptjs";
+import { Task } from "./Task";
 
 @Entity()
 @Unique(["username"])
@@ -38,6 +41,14 @@ export class User {
     @Column()
     @UpdateDateColumn()
     updatedAt: Date;
+
+    @ManyToMany(type => Task, task => task.users, {
+        cascade: true
+    })
+    @JoinTable({
+        name: "_user_tasks"
+    })
+    tasks: Task[];
 
     hashPassword() {
         this.password = bcrypt.hashSync(this.password, 8);

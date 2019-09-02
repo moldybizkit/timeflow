@@ -25,9 +25,11 @@ class UserController {
             const user = await userRepository.findOneOrFail(id, {
                 select: ["id", "username", "role"]
             });
+            res.send(user);
         } catch (error) {
             res.status(404).send("User not found");
         }
+        
     };
     
     static newUser = async (req: Request, res: Response) => {
@@ -70,7 +72,7 @@ class UserController {
 
         //try to find user on database 
         const userRepository = getRepository(User);
-        let user; 
+        let user: User; 
         try {
             user = await userRepository.findOneOrFail(id);
         } catch (error){

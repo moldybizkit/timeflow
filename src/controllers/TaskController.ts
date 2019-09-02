@@ -36,9 +36,8 @@ class TaskController {
 
         //get task from db
         const taskRepository = getRepository(Task);
-        //TODO: change not found exception
         try{
-            const task = await taskRepository.find({ 
+            const task = await taskRepository.findOneOrFail({ 
                 join: {
                     alias: "task",
                     innerJoin: {
@@ -94,19 +93,25 @@ class TaskController {
 
         //try to find task on db
         const taskRepository = getRepository(Task);
-        let task: Task; 
+        let task: Task;
         try{
-            task = await taskRepository
-            .createQueryBuilder("task")
-            .innerJoin("task.users", "user")
-            .where("task.id = :id", { id: taskId })
-            .andWhere("_user_tasks.userid = :id", { id: userId})
-            .getOne();
+            task = await taskRepository.findOneOrFail({ 
+                join: {
+                    alias: "task",
+                    innerJoin: {
+                        profile: "task.users"
+                    }
+                },
+                where: { 
+                    userid: userId,
+                    id: taskId
+                }
+             })
         } catch (error) {
             res.status(404).send("Task not found");
         }
         
-        task.makeFromRequest(req); //TODO: add other users
+        task.makeFromRequest(req); //TODO: add other users, and don't lose current one 
 
         //validate new values on model
         const errors = await validate(task);

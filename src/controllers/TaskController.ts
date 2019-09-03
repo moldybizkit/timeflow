@@ -56,13 +56,10 @@ class TaskController {
     }
 
     static newTask = async (req: Request, res: Response) => {
-        let user = new User();
-        user.id = res.locals.jwtPayload.userId;
         
         //get params from body
-        let task =new Task();
-        task.makeFromRequest(req);
-        task.users.push(user);        
+        let task = new Task();
+        task.makeFromRequestAndResponse(req, res);
 
         //validate if params are ok
         const errors = await validate(task);
@@ -111,7 +108,8 @@ class TaskController {
             res.status(404).send("Task not found");
         }
         
-        task.makeFromRequest(req); //TODO: add other users, and don't lose current one 
+        task.updateFromRequest(req); //TODO: add other users
+        
 
         //validate new values on model
         const errors = await validate(task);

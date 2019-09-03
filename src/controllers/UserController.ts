@@ -4,26 +4,15 @@ import {User} from "../entity/User";
 import { validate } from "class-validator";
 
 class UserController {
-    static listAll = async (req: Request, res: Response) => {
-        // get useres from database 
-        const userRepository = getRepository(User);
-        const users = await userRepository.find({
-            select: ["id", "username"]
-        });
-
-        //send users
-        res.send(users);
-    };
-
-    static getOneById = async (req: Request, res: Response) => {
-        //get Id from url
-        const id = req.params.id;
+        static getCurrent = async (req: Request, res: Response) => {
+        //get Id from jwt
+        const id = res.locals.jwtPayload.userId;
 
         //get user from database 
         const userRepository = getRepository(User);
         try{
             const user = await userRepository.findOneOrFail(id, {
-                select: ["id", "username"]
+                select: ["id", "username", "firstName", "lastName", "phone", "image"]
             });
             res.send(user);
         } catch (error) {
@@ -33,11 +22,8 @@ class UserController {
     };
 
     static editUser = async (req: Request, res: Response) => {
-        //get ID from url
-        const id = req.params.id;
-
-        //get values from the body
-        const { username, role } = req.body;
+        //get ID from jwt
+        const id = res.locals.jwtPayload.userId;
 
         //try to find user on database 
         const userRepository = getRepository(User);
@@ -49,8 +35,10 @@ class UserController {
             return;
         }
 
+        //update user's properties from request
+        user.updateFromRequest(req);
+
         //validate new values on model
-        user.username = username; 
         const errors = await validate(user);
         if (errors.length > 0) {
             res.status(400).send(errors);
@@ -69,24 +57,6 @@ class UserController {
         res.status(204).send();
     };
 
-    static deleteUser = async (req: Request, res: Response) => {
-        // get id from url
-        const id = req.params.id;
-
-        //try to find user on db
-        const userRepository = getRepository(User);
-        let user: User;
-        try{ 
-            user = await userRepository.findOneOrFail(id);
-        } catch (error){
-            res.status(404).send("User not found");
-            return;
-        }
-        userRepository.delete(id);
-
-        //send 204 if ok
-        res.status(204).send();
-    };
 }
 
 export default UserController;

@@ -4,28 +4,14 @@ import { checkJwt } from "../middlewares/checkJwt";
 
 const router = Router();
 
-//Get all users 
-router.get("/", [checkJwt], UserController.listAll);
+//Get information about current user
+router.get("/me", [checkJwt], UserController.getCurrent);
 
-//Get one user
-router.get(
-    "/:id([0-9]+)",
-    [checkJwt],
-    UserController.getOneById
-);
-
-//Edit one user
+//Edit current user
 router.patch(
-    "/:id([0-9]+)",
+    "/me",
     [checkJwt],
     UserController.editUser
-);
-
-//Delete one user
-router.delete(
-    "/:id([0-9]+)",
-    [checkJwt],
-    UserController.deleteUser
 );
 
 export default router;

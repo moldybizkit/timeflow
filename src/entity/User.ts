@@ -9,9 +9,10 @@ import {
     JoinTable
 } from "typeorm";
 
-import { Length, IsNotEmpty } from "class-validator";
+import { Length, IsNotEmpty} from "class-validator";
 import * as bcrypt from "bcryptjs";
 import { Task } from "./Task";
+import { Request } from "express";
 
 @Entity()
 @Unique(["username"])
@@ -38,6 +39,26 @@ export class User {
     @UpdateDateColumn()
     updatedAt: Date;
 
+    @Column({
+        nullable: true
+    })
+    firstName: string;
+
+    @Column({
+        nullable: true
+    })
+    lastName: string;
+
+    @Column({
+        nullable: true
+    })
+    phone: string;
+
+    @Column({
+        nullable: true
+    })
+    image: string;
+
     @ManyToMany(type => Task, task => task.users, {
         cascade: true
     })
@@ -52,6 +73,14 @@ export class User {
 
     checkIfUnencryptedPasswordIsValid(unencryptedPassword: string) {
         return bcrypt.compareSync(unencryptedPassword, this.password);
+    }
+
+    updateFromRequest(req: Request){
+        let {firstName, lastName, phone, image} = req.body;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phone = phone;
+        this.image = image;
     }
 
 }

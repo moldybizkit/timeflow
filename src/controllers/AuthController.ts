@@ -46,6 +46,7 @@ class AuthController {
         let user = new User();
         user.username = username;
         user.password = password;
+
         //validate if params are ok
         const errors = await validate(user);
         if (errors.length > 0) {

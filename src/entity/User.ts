@@ -76,7 +76,7 @@ export class User {
     }
 
     updateFromRequest(req: Request){
-        let {firstName, lastName, phone, image} = req.body;
+        const {firstName, lastName, phone, image} = req.body;
         this.firstName = firstName;
         this.lastName = lastName;
         this.phone = phone;
